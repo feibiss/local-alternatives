@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
 import { Upload } from "@aws-sdk/lib-storage"
 import { stripURLSubpath } from "@curiousleaf/utils"
-wretch from "wretch"
+import wretch from "wretch"
 import QueryStringAddon from "wretch/addons/queryString"
 import { env } from "~/env"
 import { s3Client } from "~/services/s3"
@@ -106,4 +106,63 @@ export const uploadFavicon = async (url: string, s3Key: string): Promise<string 
   }
 
   return `${data}?v=${timestamp}`
+}
+
+/**
+ * Uploads a screenshot to S3 and returns the S3 location.
+ * @param url - The URL of the website to fetch the screenshot from.
+ * @param s3Key - The S3 key to upload the screenshot to.
+ * @returns The S3 location of the uploaded screenshot.
+ */
+export const uploadScreenshot = async (url: string, s3Key: string): Promise<string> => {
+  const timestamp = Date.now()
+
+  const query = {
+    url,
+    access_key: env.SCREENSHOTONE_ACCESS_KEY,
+    response_type: "json",
+
+    // Cache
+    cache: "true",
+    cache_ttl: "2592000",
+
+    // Emulations
+    dark_mode: "true",
+    reduced_motion: "true",
+
+    // Blockers
+    delay: "3",
+    block_ads: "true",
+    block_chats: "true",
+    block_trackers: "true",
+    block_cookie_banners: "true",
+
+    // Image and viewport options
+    format: "webp",
+    viewport_width: "1280",
+    viewport_height: "720",
+
+    // Storage options
+    store: "true",
+    storage_path: s3Key,
+    storage_bucket: env.S3_BUCKET,
+    storage_access_key_id: env.S3_ACCESS_KEY,
+    storage_secret_access_key: env.S3_SECRET_ACCESS_KEY,
+    storage_return_location: "true",
+  }
+
+  const { data, error } = await tryCatch(
+    wretch("https://api.screenshotone.com/take")
+      .addon(QueryStringAddon)
+      .query(query)
+      .get()
+      .json<{ store: { location: string } }>(),
+  )
+
+  if (error) {
+    console.error("Error fetching screenshot:", error)
+    throw error
+  }
+
+  return `${data.store.location}?v=${timestamp}`
 }
