@@ -1,4 +1,3 @@
-import { differenceInDays } from "date-fns"
 import { revalidateTag } from "next/cache"
 import { config } from "~/config"
 import EmailToolExpediteReminder from "~/emails/tool-expedite-reminder"
@@ -7,7 +6,6 @@ import { sendEmails } from "~/lib/email"
 import { generateContentWithRelations } from "~/lib/generate-content"
 import { uploadFavicon, uploadScreenshot } from "~/lib/media"
 import { getToolRepositoryData } from "~/lib/repositories"
-import { analyzeRepositoryStack } from "~/lib/stack-analysis"
 import { inngest } from "~/services/inngest"
 import { ensureFreeSubmissions } from "~/utils/functions"
 
@@ -45,16 +43,6 @@ export const toolScheduled = inngest.createFunction(
         return await db.tool.update({
           where: { id: tool.id },
           data,
-        })
-      }),
-
-      step.run("analyze-repository-stack", async () => {
-        const { id, repositoryUrl } = tool
-        const { stack } = await analyzeRepositoryStack(repositoryUrl)
-
-        return await db.tool.update({
-          where: { id },
-          data: { stacks: { set: stack.map(slug => ({ slug })) } },
         })
       }),
 
