@@ -2,17 +2,15 @@ import type { Metadata } from "next"
 import type { PropsWithChildren } from "react"
 import { Intro, IntroDescription, IntroTitle } from "~/components/web/ui/intro"
 import { metadataConfig } from "~/config/metadata"
-import { StackAnalyzerForm } from "./form"
 
 export const metadata: Metadata = {
-  title: "GitHub Tech Stack Analyzer",
-  description:
-    "Analyze the tech stack of any public GitHub repository instantly. Discover the frameworks, libraries, and tools used in any project.",
-  openGraph: { ...metadataConfig.openGraph, url: "/tools/github-stack-analyzer" },
-  alternates: { ...metadataConfig.alternates, canonical: "/tools/github-stack-analyzer" },
+  title: "New Tool",  // Updated title
+  description: "Description of your new tool goes here.",
+  openGraph: { ...metadataConfig.openGraph, url: "/tools/new-tool" },  // Updated URL
+  alternates: { ...metadataConfig.alternates, canonical: "/tools/new-tool" },  // Updated URL
 }
 
-export default function StackAnalyzerLayout({ children }: PropsWithChildren) {
+export default function NewToolLayout({ children }: PropsWithChildren) {
   return (
     <>
       <Intro>
@@ -20,7 +18,7 @@ export default function StackAnalyzerLayout({ children }: PropsWithChildren) {
         <IntroDescription>{metadata.description}</IntroDescription>
       </Intro>
 
-      <StackAnalyzerForm />
+      {/* Removed StackAnalyzerForm */}
 
       {children}
     </>
