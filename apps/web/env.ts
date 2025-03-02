@@ -41,8 +41,7 @@ export const env = createEnv({
     BLUESKY_PASSWORD: z.string().optional(),
     MASTODON_ACCESS_TOKEN: z.string().optional(),
     FIRECRAWL_API_KEY: z.string().min(1),
-    STACK_ANALYZER_API_URL: z.string().min(1).url(),
-    STACK_ANALYZER_API_KEY: z.string().min(1),
+
   },
 
   /**
