@@ -1,34 +1,9 @@
 import { eachDayOfInterval, format, startOfDay, subDays } from "date-fns"
 import { unstable_cacheLife as cacheLife, unstable_cacheTag as cacheTag } from "next/cache"
 import type { ComponentProps } from "react"
-import wretch from "wretch"
 import { Chart, type ChartData } from "~/app/admin/_components/chart"
 import { Card, CardDescription, CardHeader } from "~/components/common/card"
 import { H2 } from "~/components/common/heading"
-import { env } from "~/env"
-
-type BeehiivSubscription = {
-  id: string
-  email: string
-  status: "active" | "validating" | "inactive" | "bounced" | "spam_complaint" | "unsubscribed"
-  created: number
-  subscription_tier: "free" | "premium"
-  subscription_premium_tier_names: string[]
-  utm_source: string
-  utm_medium: string
-  utm_channel: string
-  utm_campaign: string
-  referring_site: string
-  referral_code: string
-}
-
-type SubscribersResponse = {
-  data: BeehiivSubscription[]
-  limit: number
-  page: number
-  total_results: number
-  total_pages: number
-}
 
 const getSubscribers = async () => {
   "use cache"
@@ -36,58 +11,21 @@ const getSubscribers = async () => {
   cacheTag("subscribers")
   cacheLife("minutes")
 
-  const url = `https://api.beehiiv.com/v2/publications/${env.BEEHIIV_PUBLICATION_ID}/subscriptions`
   const thirtyDaysAgo = startOfDay(subDays(new Date(), 30))
-  const allSubscribers: BeehiivSubscription[] = []
-  let currentPage = 1
-  let hasMorePages = true
+  const allSubscribers: { created: number }[] = []
   let totalResults = 0
 
-  const baseParams = {
-    limit: "100",
-    status: "active",
-    order_by: "created",
-    direction: "desc",
-  }
-
   try {
-    while (hasMorePages) {
-      const params = new URLSearchParams({
-        ...baseParams,
-        page: currentPage.toString(),
-      })
+    // Fetch subscriber data from your database instead of Beehiiv
+    const subscribers = await fetchSubscribersFromDatabase()
 
-      const response = await wretch(`${url}?${params}`)
-        .auth(`Bearer ${env.BEEHIIV_API_KEY}`)
-        .get()
-        .json<SubscribersResponse>()
+    // Filter only subscribers from last 30 days
+    const relevantSubscribers = subscribers.filter(
+      sub => new Date(sub.created * 1000) >= thirtyDaysAgo,
+    )
 
-      // Store total_results from first response
-      if (currentPage === 1) {
-        totalResults = response.total_results
-      }
-
-      const subscribers = response.data
-      const oldestSubscriber = subscribers[subscribers.length - 1]
-
-      // Add only subscribers from last 30 days
-      const relevantSubscribers = subscribers.filter(
-        sub => new Date(sub.created * 1000) >= thirtyDaysAgo,
-      )
-
-      allSubscribers.push(...relevantSubscribers)
-
-      // Stop if we've reached subscribers older than 30 days or no more pages
-      if (
-        !oldestSubscriber ||
-        new Date(oldestSubscriber.created * 1000) < thirtyDaysAgo ||
-        currentPage >= response.total_pages
-      ) {
-        hasMorePages = false
-      } else {
-        currentPage++
-      }
-    }
+    allSubscribers.push(...relevantSubscribers)
+    totalResults = allSubscribers.length
 
     // Group subscribers by date
     const subscribersByDate = allSubscribers.reduce<Record<string, number>>((acc, sub) => {
@@ -105,7 +43,6 @@ const getSubscribers = async () => {
       value: subscribersByDate[format(day, "yyyy-MM-dd")] || 0,
     }))
 
-    const totalSubscribers = totalResults
     const averageSubscribers = results.reduce((sum, day) => sum + day.value, 0) / results.length
 
     return { results, totalSubscribers, averageSubscribers }

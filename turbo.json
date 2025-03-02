@@ -1,6 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": [
+    "**/.env.*local"
+  ],
   "globalEnv": [
     "NODE_ENV",
     "VERCEL_URL",
@@ -26,8 +28,6 @@
     "NEXT_PUBLIC_PLAUSIBLE_DOMAIN",
     "NEXT_PUBLIC_PLAUSIBLE_URL",
     "PLAUSIBLE_API_KEY",
-    "BEEHIIV_API_KEY",
-    "BEEHIIV_PUBLICATION_ID",
     "GITHUB_TOKEN",
     "S3_BUCKET",
     "S3_REGION",
@@ -48,12 +48,22 @@
   ],
   "tasks": {
     "build": {
-      "dependsOn": ["^db:generate"],
-      "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**", "public/build/**"],
+      "dependsOn": [
+        "^db:generate"
+      ],
+      "outputs": [
+        "dist/**",
+        "build/**",
+        ".next/**",
+        "!.next/cache/**",
+        "public/build/**"
+      ],
       "cache": false
     },
     "dev": {
-      "dependsOn": ["^db:generate"],
+      "dependsOn": [
+        "^db:generate"
+      ],
       "cache": false,
       "persistent": true
     },

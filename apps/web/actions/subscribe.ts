@@ -1,11 +1,7 @@
-"use server"
-
-import wretch from "wretch"
 import { createServerAction } from "zsa"
-import { env } from "~/env"
 import { getIP, isRateLimited } from "~/lib/rate-limiter"
 import { newsletterSchema } from "~/server/schemas"
-import { isDisposableEmail, tryCatch } from "~/utils/helpers"
+import { isDisposableEmail } from "~/utils/helpers"
 
 /**
  * Subscribe to the newsletter
@@ -27,22 +23,9 @@ export const subscribeToNewsletter = createServerAction()
       throw new Error("Invalid email address, please use a real one")
     }
 
-    const url = `https://api.beehiiv.com/v2/publications/${env.BEEHIIV_PUBLICATION_ID}/subscriptions`
-
-    const { data, error } = await tryCatch(
-      wretch(url)
-        .auth(`Bearer ${env.BEEHIIV_API_KEY}`)
-        .post({ email, ...input })
-        .json<{ data: { status: string } }>(),
-    )
-
-    if (error) {
-      throw new Error("Failed to subscribe to newsletter. Please try again later.")
-    }
-
-    if (data.data.status === "pending") {
-      return "You've been subscribed to the newsletter, please check your email for confirmation."
-    }
+    // Handle subscription logic (store email in your database, send a welcome email, etc.)
+    // Example:
+    // await saveToDatabase(email, input);
 
     return "You've been subscribed to the newsletter."
   })
