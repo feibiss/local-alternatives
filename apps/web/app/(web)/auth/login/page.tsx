@@ -9,7 +9,7 @@ import { metadataConfig } from "~/config/metadata"
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Get access to your dashboard and manage submitted tools.",
+  description: "Get access to the dashboard and manage your submitted tools.",
   openGraph: { ...metadataConfig.openGraph, url: "/auth/login" },
   alternates: { ...metadataConfig.alternates, canonical: "/auth/login" },
 }
@@ -19,11 +19,11 @@ export default function LoginPage() {
     <>
       <Intro>
         <IntroTitle size="h3">{`${metadata.title}`}</IntroTitle>
-        <IntroDescription className="md:text-base">{metadata.description}</IntroDescription>
+        <IntroDescription className="md:text-sm">{metadata.description}</IntroDescription>
       </Intro>
 
       <Suspense fallback={<LoaderIcon className="animate-spin mx-auto" />}>
-        <Stack direction="column" className="items-stretch w-full gap-2">
+        <Stack direction="column" className="items-stretch w-full">
           <LoginForm />
 
           <div className="flex items-center justify-center gap-3 my-2 text-sm text-muted-foreground before:flex-1 before:border-t after:flex-1 after:border-t">

@@ -63,6 +63,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/latest",
+        destination: "/?sort=publishedAt.desc",
+        permanent: true,
+      },
+      {
         source: "/topics",
         destination: "/topics/letter/a",
         permanent: true,
@@ -70,6 +75,11 @@ const nextConfig: NextConfig = {
       {
         source: "/languages/:path*",
         destination: "/stacks/:path*",
+        permanent: true,
+      },
+      {
+        source: "/licenses/:path*/tools",
+        destination: "/licenses/:path*",
         permanent: true,
       },
       {

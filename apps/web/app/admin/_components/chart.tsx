@@ -31,7 +31,7 @@ export const Chart = ({ className, cellClassName, data, average, label, ...props
       <div className={cx("relative flex h-full min-h-48 w-full flex-col", className)} {...props}>
         {average !== undefined && (
           <div
-            className="absolute inset-x-0 z-10 flex items-center"
+            className="absolute inset-x-0 z-10 flex items-center pointer-events-none"
             style={{ bottom: `${(average / maxValue) * 100}%` }}
           >
             <div className="h-px w-full flex-1 border border-dashed border-foreground/15" />
@@ -42,7 +42,7 @@ export const Chart = ({ className, cellClassName, data, average, label, ...props
           </div>
         )}
 
-        <div className="flex items-end justify-between gap-0.5 size-full">
+        <div className="flex items-end justify-between gap-1 size-full">
           {data.map((item, index) => (
             <Tooltip
               key={item.date}
