@@ -98,9 +98,8 @@ export function ToolForm({
 
   // Update tool
   const { execute: updateToolAction, isPending: isUpdatingTool } = useServerAction(updateTool, {
-    onSuccess: ({ data }) => {
+    onSuccess: () => {
       toast.success("Tool successfully updated")
-      redirect(`/admin/tools/${data.slug}`)
     },
 
     onError: ({ err }) => {
@@ -235,7 +234,7 @@ export function ToolForm({
                     variant="secondary"
                     onClick={() => setIsPreviewing(prev => !prev)}
                     prefix={isPreviewing ? <PencilIcon /> : <EyeIcon />}
-                    className="-my-0.5"
+                    className="-my-1"
                   >
                     {isPreviewing ? "Edit" : "Preview"}
                   </Button>
@@ -315,11 +314,11 @@ export function ToolForm({
                 <FormLabel>Status</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-full tabular-nums">
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
 
-                    <SelectContent className="tabular-nums">
+                    <SelectContent>
                       {Object.values(ToolStatus).map(status => (
                         <SelectItem key={status} value={status}>
                           {status}
@@ -477,11 +476,11 @@ export function ToolForm({
         />
 
         <div className="flex justify-between gap-4 col-span-full">
-          <Button variant="secondary" asChild>
+          <Button size="md" variant="secondary" asChild>
             <Link href="/admin/tools">Cancel</Link>
           </Button>
 
-          <Button variant="primary" isPending={isPending}>
+          <Button size="md" variant="primary" isPending={isPending}>
             {tool ? "Update tool" : "Create tool"}
           </Button>
         </div>

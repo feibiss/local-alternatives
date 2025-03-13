@@ -72,9 +72,8 @@ export function AlternativeForm({
   const { execute: updateAlternativeAction, isPending: isUpdatingAlternative } = useServerAction(
     updateAlternative,
     {
-      onSuccess: ({ data }) => {
+      onSuccess: () => {
         toast.success("Alternative successfully updated")
-        redirect(`/admin/alternatives/${data.slug}`)
       },
 
       onError: ({ err }) => {
@@ -229,11 +228,11 @@ export function AlternativeForm({
         />
 
         <div className="flex justify-between gap-4 col-span-full">
-          <Button variant="secondary" asChild>
+          <Button size="md" variant="secondary" asChild>
             <Link href="/admin/alternatives">Cancel</Link>
           </Button>
 
-          <Button variant="primary" isPending={isPending}>
+          <Button size="md" variant="primary" isPending={isPending}>
             {alternative ? "Update alternative" : "Create alternative"}
           </Button>
         </div>

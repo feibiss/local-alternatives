@@ -40,9 +40,12 @@ const UserMenu = async () => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent side="bottom" align="end">
-        <DropdownMenuLabel className="truncate font-normal leading-relaxed">
-          <div className="text-foreground">{session.user.name}</div>
-          {session.user.email}
+        <DropdownMenuLabel className="max-w-48 truncate font-normal leading-relaxed">
+          {session.user.name}
+
+          {session.user.name !== session.user.email && (
+            <div className="text-muted-foreground truncate">{session.user.email}</div>
+          )}
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />

@@ -26,7 +26,7 @@ import type { ToolOne } from "~/server/web/tools/payloads"
 import { type VariantProps, cva, cx } from "~/utils/cva"
 
 const planVariants = cva({
-  base: "items-stretch gap-8 basis-72 grow max-w-80 overflow-clip",
+  base: "items-stretch gap-8 basis-72 grow max-w-80 bg-transparent overflow-clip",
 })
 
 const planFeatureVariants = cva({
@@ -38,7 +38,7 @@ const planFeatureCheckVariants = cva({
 
   variants: {
     type: {
-      positive: "bg-green-700/90 text-white dark:bg-green-500/50",
+      positive: "bg-green-500/50",
       neutral: "bg-foreground/10",
       negative: "bg-foreground/10",
     },
@@ -83,7 +83,7 @@ type PlanProps = ComponentProps<"div"> &
     /**
      * The discount coupon.
      */
-    coupon?: Stripe.Coupon | null
+    coupon?: Stripe.Coupon
 
     /**
      * The slug of the tool.
@@ -108,7 +108,7 @@ const Plan = ({
 }: PlanProps) => {
   const router = useRouter()
   const { isSubscription, currentPrice, price, fullPrice, discount, interval, setInterval } =
-    usePlanPrices(prices ?? [], coupon)
+    usePlanPrices(prices, coupon)
 
   const { execute, isPending } = useServerAction(createStripeToolCheckout, {
     onSuccess: ({ data }) => {
@@ -136,7 +136,11 @@ const Plan = ({
   }
 
   return (
-    <Card hover={false} className={cx(planVariants({ className }))} {...props}>
+    <Card
+      hover={false}
+      className={cx(planVariants({ className }), isFeatured && "lg:-my-3 lg:py-8")}
+      {...props}
+    >
       {isFeatured && (
         <>
           <Beam />
@@ -171,14 +175,15 @@ const Plan = ({
         fullPrice={fullPrice}
         interval={isSubscription ? "month" : "one-time"}
         discount={discount}
+        coupon={coupon}
         format={{ style: "decimal", notation: "compact", maximumFractionDigits: 0 }}
         className="w-full"
-        priceClassName="text-[2em] sm:text-[2.5em]"
+        priceClassName="text-[3em]"
       />
 
       {!!features && (
         <TooltipProvider delayDuration={0}>
-          <Stack direction="column" className="items-stretch">
+          <Stack direction="column" className="my-auto items-stretch">
             {features.map(({ type, name, footnote }) => (
               <div key={name} className={cx(planFeatureVariants())}>
                 <Slot.Root className={cx(planFeatureCheckVariants({ type }))}>
@@ -200,11 +205,10 @@ const Plan = ({
 
       <Button
         type="button"
-        className="mt-auto"
-        variant={!price ? "secondary" : "primary"}
+        variant={!price ? "secondary" : isFeatured ? "fancy" : "primary"}
         isPending={isPending}
         disabled={!price || isPending}
-        suffix={<ArrowUpRightIcon />}
+        suffix={!price ? <span /> : <ArrowUpRightIcon />}
         onClick={onSubmit}
       >
         {!price
@@ -231,9 +235,9 @@ const PlanSkeleton = () => {
         </div>
       </div>
 
-      <Skeleton className="w-1/4 h-[0.9em] text-[2em] sm:text-[2.5em]">&nbsp;</Skeleton>
+      <Skeleton className="w-1/4 h-[0.9em] text-[3em]">&nbsp;</Skeleton>
 
-      <Stack direction="column" className="items-stretch">
+      <Stack direction="column" className="my-auto items-stretch">
         {[...Array(5)].map((_, index) => (
           <div key={index} className={cx(planFeatureVariants())}>
             <div className={cx(planFeatureCheckVariants({ type: "neutral" }))}>&nbsp;</div>
@@ -243,7 +247,7 @@ const PlanSkeleton = () => {
         ))}
       </Stack>
 
-      <Button variant="secondary" className="mt-auto" disabled>
+      <Button variant="secondary" disabled>
         &nbsp;
       </Button>
     </Card>

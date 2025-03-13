@@ -2,10 +2,11 @@
 
 import { slugify } from "@curiousleaf/utils"
 import { db } from "@openalternative/db"
-import { revalidateTag } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
+import { after } from "next/server"
 import { z } from "zod"
 import { isProd } from "~/env"
-import { uploadFavicon } from "~/lib/media"
+import { removeS3Directories, uploadFavicon } from "~/lib/media"
 import { adminProcedure } from "~/lib/safe-actions"
 import { alternativeSchema } from "~/server/admin/alternatives/schemas"
 import { inngest } from "~/services/inngest"
@@ -61,12 +62,13 @@ export const deleteAlternatives = adminProcedure
       where: { id: { in: ids } },
     })
 
+    revalidatePath("/admin/alternatives")
     revalidateTag("alternatives")
 
-    for (const alternative of alternatives) {
-      isProd &&
-        (await inngest.send({ name: "alternative.deleted", data: { slug: alternative.slug } }))
-    }
+    // Remove the alternative images from S3 asynchronously
+    after(async () => {
+      await removeS3Directories(alternatives.map(alt => `alternatives/${alt.slug}`))
+    })
 
     return true
   })

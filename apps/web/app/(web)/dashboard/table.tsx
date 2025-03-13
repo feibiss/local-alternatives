@@ -5,6 +5,7 @@ import { type Tool, ToolStatus } from "@openalternative/db/client"
 import type { ColumnDef } from "@tanstack/react-table"
 import { differenceInDays, formatDistanceToNowStrict } from "date-fns"
 import { CircleDashedIcon, CircleDotDashedIcon, CircleIcon, PlusIcon } from "lucide-react"
+import { useQueryStates } from "nuqs"
 import { use, useMemo } from "react"
 import { Button } from "~/components/common/button"
 import { Link } from "~/components/common/link"
@@ -12,10 +13,10 @@ import { Stack } from "~/components/common/stack"
 import { DataTable } from "~/components/data-table/data-table"
 import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header"
 import { DataTableLink } from "~/components/data-table/data-table-link"
-import { DataTableThumbnail } from "~/components/data-table/data-table-thumbnail"
 import { DataTableToolbar } from "~/components/data-table/data-table-toolbar"
 import { useDataTable } from "~/hooks/use-data-table"
 import type { findTools } from "~/server/admin/tools/queries"
+import { toolsTableParamsSchema } from "~/server/admin/tools/schemas"
 import type { DataTableFilterField } from "~/types"
 
 type DashboardTableProps = {
@@ -24,12 +25,14 @@ type DashboardTableProps = {
 
 export const DashboardTable = ({ toolsPromise }: DashboardTableProps) => {
   const { tools, pageCount } = use(toolsPromise)
+  const [{ perPage, sort }] = useQueryStates(toolsTableParamsSchema)
 
   // Memoize the columns so they don't re-render on every render
   const columns = useMemo((): ColumnDef<Tool>[] => {
     return [
       {
         accessorKey: "name",
+        enableHiding: false,
         header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
         cell: ({ row }) => {
           const { name, slug, status, faviconUrl } = row.original
@@ -38,16 +41,12 @@ export const DashboardTable = ({ toolsPromise }: DashboardTableProps) => {
             return <span className="text-muted-foreground font-medium">{name}</span>
           }
 
-          return (
-            <DataTableLink href={`/${slug}`}>
-              {faviconUrl && <DataTableThumbnail src={faviconUrl} />}
-              {name}
-            </DataTableLink>
-          )
+          return <DataTableLink href={`/${slug}`} image={faviconUrl} title={name} />
         },
       },
       {
         accessorKey: "publishedAt",
+        enableHiding: false,
         header: ({ column }) => <DataTableColumnHeader column={column} title="Published At" />,
         cell: ({ row }) => {
           const { status, publishedAt } = row.original
@@ -91,6 +90,7 @@ export const DashboardTable = ({ toolsPromise }: DashboardTableProps) => {
       },
       {
         accessorKey: "createdAt",
+        enableHiding: false,
         header: ({ column }) => <DataTableColumnHeader column={column} title="Created At" />,
         cell: ({ row }) => (
           <span className="text-muted-foreground">
@@ -101,6 +101,7 @@ export const DashboardTable = ({ toolsPromise }: DashboardTableProps) => {
       },
       {
         id: "actions",
+        enableHiding: false,
         cell: ({ row }) => {
           const { slug, isFeatured, publishedAt } = row.original
           const isLongQueue = !publishedAt || differenceInDays(publishedAt, new Date()) >= 7
@@ -143,7 +144,8 @@ export const DashboardTable = ({ toolsPromise }: DashboardTableProps) => {
     shallow: false,
     clearOnDefault: true,
     initialState: {
-      sorting: [{ id: "createdAt", desc: true }],
+      pagination: { pageIndex: 0, pageSize: perPage },
+      sorting: sort,
       columnPinning: { right: ["actions"] },
       columnVisibility: { createdAt: false },
     },

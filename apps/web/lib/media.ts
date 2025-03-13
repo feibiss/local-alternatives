@@ -3,7 +3,7 @@ import { Upload } from "@aws-sdk/lib-storage"
 import { stripURLSubpath } from "@curiousleaf/utils"
 import wretch from "wretch"
 import QueryStringAddon from "wretch/addons/queryString"
-import { env } from "~/env"
+import { env, isProd } from "~/env"
 import { s3Client } from "~/services/s3"
 import { tryCatch } from "~/utils/helpers"
 
@@ -13,7 +13,7 @@ import { tryCatch } from "~/utils/helpers"
  * @param key - The S3 key to upload the file to.
  * @returns The S3 location of the uploaded file.
  */
-const uploadToS3Storage = async (file: Buffer, key: string) => {
+export const uploadToS3Storage = async (file: Buffer, key: string) => {
   const upload = new Upload({
     client: s3Client,
     params: {
@@ -37,10 +37,23 @@ const uploadToS3Storage = async (file: Buffer, key: string) => {
 }
 
 /**
+ * Removes a list of directories from S3.
+ * @param directories - The directories to remove.
+ */
+export const removeS3Directories = async (directories: string[]) => {
+  for (const directory of directories) {
+    await removeS3Directory(directory)
+  }
+}
+
+/**
  * Removes a directory from S3.
  * @param directory - The directory to remove.
  */
 export const removeS3Directory = async (directory: string) => {
+  // Safety flag to prevent accidental deletion of S3 files
+  if (!isProd) return
+
   const listCommand = new ListObjectsV2Command({
     Bucket: env.S3_BUCKET,
     Prefix: `${directory}/`,
