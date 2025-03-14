@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { type ComponentProps, Suspense, useEffect, useState } from "react"
-import { Button } from "~/components/common/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,17 +21,17 @@ import {
 import { BrandBlueskyIcon } from "~/components/common/icons/brand-bluesky"
 import { BrandGitHubIcon } from "~/components/common/icons/brand-github"
 import { BrandXIcon } from "~/components/common/icons/brand-x"
-import { Link } from "~/components/common/link"
 import { Stack } from "~/components/common/stack"
 import { SearchForm } from "~/components/web/search-form"
 import { Container } from "~/components/web/ui/container"
 import { Hamburger } from "~/components/web/ui/hamburger"
 import { Logo } from "~/components/web/ui/logo"
 import { NavLink, navLinkVariants } from "~/components/web/ui/nav-link"
+import { UserMenu } from "~/components/web/user-menu"
 import { config } from "~/config"
 import { cx } from "~/utils/cva"
 
-export const Header = ({ children, className, ...props }: ComponentProps<typeof Container>) => {
+export const Header = ({ className, ...props }: ComponentProps<typeof Container>) => {
   const pathname = usePathname()
   const [isNavOpen, setNavOpen] = useState(false)
 
@@ -119,7 +118,9 @@ export const Header = ({ children, className, ...props }: ComponentProps<typeof 
           </DropdownMenu>
 
           <NavLink href="/alternatives">Alternatives</NavLink>
+          <NavLink href="/self-hosted">Self-hosted</NavLink>
           <NavLink href="/advertise">Advertise</NavLink>
+          <NavLink href="/submit">Submit</NavLink>
         </nav>
 
         <Stack size="sm" className="max-sm:hidden">
@@ -155,13 +156,7 @@ export const Header = ({ children, className, ...props }: ComponentProps<typeof 
           </NavLink>
         </Stack>
 
-        <Stack size="sm">
-          <Button size="sm" variant="secondary" asChild>
-            <Link href="/submit">Submit</Link>
-          </Button>
-
-          {children}
-        </Stack>
+        <UserMenu />
       </div>
 
       <nav
